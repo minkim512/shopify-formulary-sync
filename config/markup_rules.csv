@@ -1,0 +1,10 @@
+priority,category_l1,cost_min,cost_max,markup_pct,compare_at_pct,note
+10,Gloves,0,20,0.45,0,High-volume commodity: thin markup
+11,Gloves,20,999999,0.35,0,
+20,Incontinence,0,999999,0.40,0,Auto-ship candidates
+30,Mobility,0,100,0.55,0,
+31,Mobility,100,999999,0.30,0,Big-ticket: keep price competitive
+40,Diagnostics,0,999999,0.50,0,
+90,*,0,10,0.80,0,Default: low-cost items need higher % to cover fulfilment
+91,*,10,50,0.55,0,Default
+92,*,50,999999,0.35,0,Default

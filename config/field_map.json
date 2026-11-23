@@ -1,0 +1,25 @@
+{
+  "_comment": "Left = our field, right = column header in the distributor's Salsify export. Change the right side when the real headers arrive.",
+  "formulary": {
+    "sku": "Item Number",
+    "title": "Retail Title",
+    "bullets": ["Feature Bullet 1", "Feature Bullet 2", "Feature Bullet 3", "Feature Bullet 4", "Feature Bullet 5"],
+    "vendor": "Manufacturer",
+    "brand": "Brand",
+    "category": ["Category Level 1", "Category Level 2", "Category Level 3"],
+    "upc": "UPC",
+    "gtin": "GTIN",
+    "weight_lb": "Shipping Weight (lb)",
+    "uom": "Unit of Measure",
+    "pack_qty": "Pack Quantity",
+    "status": "Item Status",
+    "restricted": "Restricted",
+    "stock_status": "Stock Status",
+    "images": ["Image URL 1", "Image URL 2"]
+  },
+  "pricing": {
+    "sku": "ITEM_NO",
+    "cost": "CONTRACT_COST",
+    "list_price": "LIST_PRICE"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "currency": "USD",
+  "price_ending": 0.99,
+  "min_margin_pct": 0.12,
+  "use_list_price_as_compare_at": true,
+  "discontinued_status_values": ["Discontinued", "Inactive"],
+  "missing_from_file_means_discontinued": true,
+  "restricted_flag_values": ["Y", "Yes", "TRUE", "1"],
+  "archive_as": "ARCHIVED",
+  "banned_phrases": ["FSA", "HSA"],
+  "autoship_departments": ["Incontinence", "Personal Care", "Nutrition"],
+  "metafield_namespace": "custom"
+}

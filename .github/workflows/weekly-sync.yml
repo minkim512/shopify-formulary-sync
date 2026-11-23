@@ -1,0 +1,64 @@
+name: Weekly formulary sync
+
+on:
+  schedule:
+    - cron: "17 10 * * 1"        # Mondays 10:17 UTC, after the distributor drop
+  workflow_dispatch:
+    inputs:
+      push:
+        description: "Send changes to Shopify (false = dry run + report only)"
+        type: boolean
+        default: false
+
+concurrency: formulary-sync       # never two runs at once
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: pip install -r requirements.txt
+
+      # Latest files: whatever was dropped in inbox/ (newest formulary + pricing).
+      # Swap this step for SFTP / S3 / email-attachment pickup once the distributor's delivery method is confirmed.
+      - name: Pick latest input files
+        id: files
+        run: |
+          echo "formulary=$(ls -t inbox/*formulary* | head -1)" >> "$GITHUB_OUTPUT"
+          echo "pricing=$(ls -t inbox/*pricing* | head -1)"   >> "$GITHUB_OUTPUT"
+
+      # Last week's snapshot lives on the sync-state branch
+      - name: Restore snapshot
+        run: |
+          git fetch origin sync-state || true
+          mkdir -p state
+          git show origin/sync-state:snapshot.csv.gz > state/snapshot.csv.gz 2>/dev/null || rm -f state/snapshot.csv.gz
+
+      - name: Run sync
+        env:
+          SHOPIFY_STORE: ${{ secrets.SHOPIFY_STORE }}
+          SHOPIFY_ADMIN_TOKEN: ${{ secrets.SHOPIFY_ADMIN_TOKEN }}
+        run: |
+          PUSH=""
+          if [ "${{ github.event_name }}" = "schedule" ] || [ "${{ inputs.push }}" = "true" ]; then PUSH="--push"; fi
+          python sync.py --formulary "${{ steps.files.outputs.formulary }}" --pricing "${{ steps.files.outputs.pricing }}" \
+            --label "$(date -u +%Y-W%V)" --out out $PUSH
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: sync-report-${{ github.run_number }}
+          path: out/
+          retention-days: 90
+
+      - name: Save snapshot
+        if: success()
+        run: |
+          [ -f state/snapshot.csv.gz ] || exit 0
+          git config user.name "sync-bot"; git config user.email "sync-bot@users.noreply.github.com"
+          cp state/snapshot.csv.gz /tmp/s.gz
+          git checkout --orphan tmp-state && git rm -rf . -q && cp /tmp/s.gz snapshot.csv.gz
+          git add snapshot.csv.gz && git commit -qm "snapshot $(date -u +%F)" && git push -f origin tmp-state:sync-state
